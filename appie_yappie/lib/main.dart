@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,8 +12,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Appie Yappie',
-      // home: RandomWords(),
-      // home: SoundPlayer(),
       home: HomePage(),
     );
   }
@@ -26,7 +25,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String msg = 'Test';
+  String scripture = 'Welcome to Quick Scripture!';
+  String bibleLocation = '';
 
   final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
     onPrimary: Colors.black87,
@@ -41,6 +41,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext contect) {
     return Scaffold(
+      endDrawer: _scriptureDrawer(context),
       appBar: AppBar(
         title: const Text('Saved Scriptures'),
       ),
@@ -49,43 +50,112 @@ class _HomePageState extends State<HomePage> {
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            _localDivider('Scripture', context),
             Text(
-              msg,
+              scripture,
               style: TextStyle(
                 fontSize: 40,
               ),
               textAlign: TextAlign.center,
             ),
+            _localDivider(bibleLocation, context),
             ElevatedButton(
               style: raisedButtonStyle,
               onPressed: changeText,
-              child: const Text('Text Test'),
+              child: const Text('Clear'),
             ),
-            ElevatedButton(
-              style: raisedButtonStyle,
-              onPressed: scripture,
-              child: const Text('Hebrews 11:1'),
-            )
           ],
         )),
       ),
     );
   }
 
+// Functions
   void changeText() {
     setState(() {
-      if (msg == 'Test') {
-        msg = 'Worked';
+      if (scripture == 'Welcome to Quick Scripture!') {
+        scripture = 'Select a Scripture';
+        bibleLocation = '';
       } else {
-        msg = 'Test';
+        scripture = 'Welcome to Quick Scripture!';
+        bibleLocation = '';
       }
     });
   }
 
-  void scripture() {
+  void scriptureHebrew() {
     setState(() {
-      msg =
+      scripture =
           "Now faith is the assurance of things hoped for, the conviction of things not seen.";
+      bibleLocation = 'Hebrews 11:1 ESV';
     });
   }
+
+  void scriptureMatt() {
+    setState(() {
+      scripture =
+          "But seek first the kingdom of God and his righteousness, and all these things will be added to you.";
+      bibleLocation = "Matthew 6:33 ESV";
+    });
+  }
+
+// Widgets
+  Widget _scriptureDrawer(BuildContext context) => Drawer(
+        child: SafeArea(
+            child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text('Scriptures',
+                  style: Theme.of(context).textTheme.headline6),
+            ),
+            const Divider(
+              height: 1,
+              thickness: 1,
+            ),
+            ListTile(
+              leading: const Icon(Icons.book),
+              title: const Text('Hebrew 11: 1'),
+              onTap: scriptureHebrew,
+            ),
+            ListTile(
+              leading: const Icon(Icons.book),
+              title: const Text('Matthew 6:33'),
+              onTap: scriptureMatt,
+            ),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'Label',
+              ),
+            ),
+          ],
+        )),
+      );
+
+  Widget _localDivider(String text, BuildContext context) => Padding(
+        padding: const EdgeInsets.only(top: 32, bottom: 8.0),
+        child: Row(
+          children: [
+            const Expanded(
+              child: Divider(
+                thickness: 1,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                text,
+                style: Theme.of(context).textTheme.headline6,
+              ),
+            ),
+            const Expanded(
+              child: Divider(
+                thickness: 1,
+              ),
+            ),
+          ],
+        ),
+      );
 }
