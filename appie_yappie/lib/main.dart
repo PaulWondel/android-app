@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 
@@ -26,7 +28,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String scripture = 'Welcome to Quick Scripture!';
-  String bibleLocation = '';
+  String bibleLocation1 = '';
+  String bibleLocation2 = '';
+  List _scriptureList = [];
 
   final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
     onPrimary: Colors.black87,
@@ -43,27 +47,54 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       endDrawer: _scriptureDrawer(context),
       appBar: AppBar(
-        title: const Text('Saved Scriptures'),
+        title: const Text('Quick & Handy Bible Quotes'),
       ),
       body: Container(
         child: Center(
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            _localDivider('Scripture', context),
+            _localDivider(bibleLocation1, context),
+            // _localDivider('Scripture', context),
             Text(
               scripture,
-              style: TextStyle(
-                fontSize: 40,
+              style: const TextStyle(
+                fontSize: 30,
               ),
               textAlign: TextAlign.center,
             ),
-            _localDivider(bibleLocation, context),
-            ElevatedButton(
-              style: raisedButtonStyle,
-              onPressed: changeText,
-              child: const Text('Clear'),
-            ),
+            // _localDivider(bibleLocation, context),
+            // ElevatedButton(
+            //   style: raisedButtonStyle,
+            //   onPressed: changeText,
+            //   child: const Text('Clear'),
+            // ),
+            _localDivider(bibleLocation2, context),
+            _scriptureList.isNotEmpty
+                ? Expanded(
+                    child: ListView.builder(
+                      itemCount: _scriptureList.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          margin: const EdgeInsets.all(10),
+                          child: ListTile(
+                            leading: Text(_scriptureList[index]["page_hsv"]),
+                            title: Text(_scriptureList[index]["hsv"]),
+                            subtitle: Text(_scriptureList[index]["esv"]),
+                            trailing: Text(_scriptureList[index]["page_esv"]),
+                            onTap: () {
+                              displayVerse(
+                                _scriptureList[index]["hsv"],
+                                _scriptureList[index]["page_hsv"],
+                                _scriptureList[index]["page_esv"],
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                : Container()
           ],
         )),
       ),
@@ -71,31 +102,38 @@ class _HomePageState extends State<HomePage> {
   }
 
 // Functions
+  void initState() {
+    super.initState();
+    readJson();
+  }
+
+  void displayVerse(
+      String _scripture, String _bibleLocation1, String _bibleLocation2) {
+    setState(() {
+      scripture = _scripture;
+      bibleLocation1 = _bibleLocation1;
+      bibleLocation2 = _bibleLocation2;
+    });
+  }
+
   void changeText() {
     setState(() {
       if (scripture == 'Welcome to Quick Scripture!') {
         scripture = 'Select a Scripture';
-        bibleLocation = '';
+        bibleLocation1 = '';
       } else {
         scripture = 'Welcome to Quick Scripture!';
-        bibleLocation = '';
+        bibleLocation1 = '';
       }
     });
   }
 
-  void scriptureHebrew() {
+  Future<void> readJson() async {
+    final String response =
+        await rootBundle.loadString('assets/texts/scriptures.json');
+    final data = await json.decode(response);
     setState(() {
-      scripture =
-          "Now faith is the assurance of things hoped for, the conviction of things not seen.";
-      bibleLocation = 'Hebrews 11:1 ESV';
-    });
-  }
-
-  void scriptureMatt() {
-    setState(() {
-      scripture =
-          "But seek first the kingdom of God and his righteousness, and all these things will be added to you.";
-      bibleLocation = "Matthew 6:33 ESV";
+      _scriptureList = data["items"];
     });
   }
 
@@ -116,18 +154,18 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               leading: const Icon(Icons.book),
-              title: const Text('Hebrew 11: 1'),
-              onTap: scriptureHebrew,
+              title: const Text('Coming Soon'),
+              onTap: () {},
             ),
             ListTile(
               leading: const Icon(Icons.book),
-              title: const Text('Matthew 6:33'),
-              onTap: scriptureMatt,
+              title: const Text('Coming Soon'),
+              onTap: () {},
             ),
             const Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
-                'Label',
+                'Coming Soon',
               ),
             ),
           ],
